@@ -1,0 +1,83 @@
+create TABLE uczen ( id_uczen INT AUTO_INCREMENT PRIMARY KEY, imie varchar(100), nazwisko varchar(100), id_rola INT, FOREIGN KEY(id_rola) REFERENCES rola(id_rola));
+
+create TABLE konto1 (
+id_konto INT AUTO_INCREMENT PRIMARY KEY,
+login varchar(55),
+haslo varchar(255),
+email varchar(100),
+rodzaj_konta INT,
+FOREIGN KEY(rodzaj_konta) REFERENCES rola(id_rola));
+
+create TABLE uczen1 ( 
+id_uczen INT AUTO_INCREMENT PRIMARY KEY, 
+imie varchar(100), 
+nazwisko varchar(100), 
+id_rola INT,
+id_konto INT,
+FOREIGN KEY(id_rola) REFERENCES rola(id_rola), 
+FOREIGN KEY(id_konto) REFERENCES konto(id_konto));
+
+create table ocena (
+id_ocena INT AUTO_INCREMENT PRIMARY KEY,
+ocena INT,
+komentarz varchar(100),
+id_przedmiot INT,
+id_konto INT,
+FOREIGN KEY(id_przedmiot) REFERENCES przedmiot(id_przedmiot), 
+FOREIGN KEY(id_konto) REFERENCES konto(id_konto));
+
+Wyszukiwanie ocen dla konta
+SELECT ocena, przedmiot FROM ocena INNER JOIN przedmiot ON ocena.id_przedmiot = przedmiot.id_przedmiot WHERE id_konto=5;
+
+SELECT uczen.imie, uczen.nazwisko, ocena.ocena FROM uczen, ocena, konto, nauczyciel WHERE nauczyciel.id_przedmiot=ocena.id_przedmiot AND konto.id_konto=4;
+
+SELECT uczen.imie, uczen.nazwisko, ocena.ocena FROM uczen, ocena, konto, przedmiot, nauczyciel WHERE uczen.id_konto=konto.id_konto AND ocena.id_przedmiot=przedmiot.id_przedmiot=nauczyciel.id_przedmiot AND konto.id_konto=4;
+
+SELECT `uczen`.`imie`, `uczen`.`nazwisko`, `ocena`.`ocena`
+FROM `uczen`
+	, `ocena`, `nauczyciel`, `konto`
+WHERE `nauczyciel`.`id_przedmiot` = `ocena`.`id_przedmiot` AND `ocena`.`id_przedmiot` = '2' AND `konto`.`id_konto` = '7' GROUP  by ocena.id_ocena;
+
+Wyświetli wszytkiech użytkowników
+	SELECT imie, nazwisko, konto.id_konto, login, email FROM konto LEFT JOIN uczen ON konto.id_konto = uczen.id_konto;
+
+Wyświetli wszystkich uczniów:
+	SELECT imie, nazwisko, konto.id_konto, login, email FROM konto LEFT JOIN uczen ON konto.id_konto=uczen.id_konto WHERE konto.rodzaj_konta = '1';
+	
+Wyświetli wszystkich nauczycieli:
+	SELECT imie, nazwisko, konto.id_konto, login, email FROM konto LEFT JOIN nauczyciel ON konto.id_konto=nauczyciel.id_konto WHERE konto.rodzaj_konta = '2';
+	
+Zmień uprawnienia na administartora:
+	UPDATE konto SET rodzaj_konta=3 WHERE id_konto=6;
+
+Zmień uprawnienia na nauczyciela:
+	UPDATE konto SET rodzaj_konta=2 WHERE id_konto=6;
+	
+Usuwanie konta oraz danych konta dla ucznia:
+	delete from konto where id_konto='1';
+	delete from uczen where id_konto='1';
+	
+Usuwanie konta oraz danych konta dla nauczyciela:
+	delete from konto where id_konto='1';
+	delete from uczen where id_konto='1';
+
+Dodawanie do ucznia:
+	INSERT INTO uczen (imie, nazwisko, id_rola, id_konto) VALUES('Marcin', 'Zbanyszek', '1', '7');
+
+Dodawanie do nauczyciela:
+	INSERT INTO nauczyciel (imie, nazwisko, id_rola, id_konto, id_przedmiot) VALUES('Marcin', 'Zbanyszek', '1', '7', '2');
+
+Dodawanie oceny
+	INSERT INTO ocena (ocena, komentarz, id_przedmiot, id_konto) VALUES ($ocena, $komentarz, $id_przedmiot, $id_konto)
+	
+Pokazuje oceny dla nauczyciela(bez imion i nazwisk)
+	select ocena.id_konto, ocena.ocena from konto, nauczyciel, ocena where ocena.id_konto=konto.id_konto and ocena.id_przedmiot=nauczyciel.id_przedmiot AND ocena.id_przedmiot=2;
+	select uczen.imie, uczen.nazwisko, ocena.id_konto, ocena.ocena from konto, nauczyciel, ocena, uczen where uczen.id_konto=ocena.id_konto AND ocena.id_konto=konto.id_konto and ocena.id_przedmiot=nauczyciel.id_przedmiot AND ocena.id_przedmiot=2;
+	select uczen.imie, uczen.nazwisko, ocena.ocena, ocena.komentarz from konto, nauczyciel, ocena, uczen where uczen.id_konto=ocena.id_konto AND ocena.id_konto=konto.id_konto and ocena.id_przedmiot=nauczyciel.id_przedmiot AND ocena.id_przedmiot=2 AND nauczyciel.id_konto=4;
+
+
+
+
+
+
+
